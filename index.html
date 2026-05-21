@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RuCoin (RUS) — Игровая валюта нового поколения</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #26a17b;
+    --green-dark: #0f6b4d;
+    --green-light: #2dd4a0;
+    --blue: #1a4fc4;
+    --blue-dark: #0d2d8a;
+    --gold: #f0c040;
+    --white: #ffffff;
+    --bg: #050f0a;
+    --bg2: #0a1f14;
+    --bg3: #0f2918;
+    --text: #e8f5f0;
+    --text-muted: #7ab89a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ===== ANIMATED BACKGROUND ===== */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(38,161,123,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(38,161,123,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(38,161,123,0.12) 0%, transparent 70%);
+    top: -200px;
+    left: -200px;
+    pointer-events: none;
+    z-index: 0;
+    animation: floatGlow 8s ease-in-out infinite;
+  }
+
+  .bg-glow-2 {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(26,79,196,0.1) 0%, transparent 70%);
+    bottom: -100px;
+    right: -100px;
+    pointer-events: none;
+    z-index: 0;
+    animation: floatGlow 10s ease-in-out infinite reverse;
+  }
+
+  @keyframes floatGlow {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(40px, 40px); }
+  }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(5,15,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(38,161,123,0.15);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .nav-logo-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .nav-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 1px;
+  }
+
+  .nav-logo-text span {
+    color: var(--green-light);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--green-light); }
+
+  .nav-btn {
+    background: var(--green);
+    color: white !important;
+    padding: 10px 24px;
+    border-radius: 100px;
+    transition: background 0.3s, transform 0.2s !important;
+  }
+
+  .nav-btn:hover {
+    background: var(--green-light) !important;
+    transform: translateY(-1px);
+    color: var(--bg) !important;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 20px 80px;
+  }
+
+  .hero-content {
+    max-width: 800px;
+    animation: fadeUp 1s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(38,161,123,0.12);
+    border: 1px solid rgba(38,161,123,0.3);
+    color: var(--green-light);
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 32px;
+    animation: fadeUp 1s ease 0.1s both;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--green-light);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero-logo {
+    margin: 0 auto 32px;
+    animation: fadeUp 1s ease 0.15s both;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 8vw, 88px);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 24px;
+    animation: fadeUp 1s ease 0.2s both;
+  }
+
+  .hero h1 .highlight {
+    color: var(--green-light);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 auto 48px;
+    animation: fadeUp 1s ease 0.3s both;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 1s ease 0.4s both;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: white;
+    padding: 16px 36px;
+    border-radius: 100px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    background: var(--green-light);
+    color: var(--bg);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(38,161,123,0.3);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    padding: 16px 36px;
+    border-radius: 100px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--green);
+    color: var(--green-light);
+    transform: translateY(-2px);
+  }
+
+  /* ===== STATS ===== */
+  .stats {
+    position: relative;
+    z-index: 1;
+    padding: 60px 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2px;
+    max-width: 1000px;
+    margin: 0 auto;
+    border-top: 1px solid rgba(38,161,123,0.15);
+    border-bottom: 1px solid rgba(38,161,123,0.15);
+  }
+
+  .stat {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--green-light);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ===== SECTIONS ===== */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+
+  .section-desc {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    max-width: 560px;
+  }
+
+  /* ===== HOW IT WORKS ===== */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .step {
+    background: rgba(38,161,123,0.05);
+    border: 1px solid rgba(38,161,123,0.15);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .step:hover {
+    border-color: rgba(38,161,123,0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  }
+
+  .step:hover::before { opacity: 1; }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: rgba(38,161,123,0.2);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .step-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .step h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--white);
+  }
+
+  .step p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ===== TOKEN INFO ===== */
+  .token-card {
+    background: linear-gradient(135deg, rgba(38,161,123,0.08), rgba(26,79,196,0.08));
+    border: 1px solid rgba(38,161,123,0.2);
+    border-radius: 28px;
+    padding: 48px;
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .token-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .token-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(38,161,123,0.1);
+  }
+
+  .token-row:last-child { border-bottom: none; }
+
+  .token-row-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .token-row-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .token-row-value.green { color: var(--green-light); }
+
+  .contract-address {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(38,161,123,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .contract-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .contract-value {
+    font-size: 13px;
+    color: var(--green-light);
+    word-break: break-all;
+    font-family: monospace;
+  }
+
+  .copy-btn {
+    background: rgba(38,161,123,0.15);
+    border: 1px solid rgba(38,161,123,0.3);
+    color: var(--green-light);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .copy-btn:hover {
+    background: var(--green);
+    color: white;
+  }
+
+  /* ===== PARTNERS ===== */
+  .partners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 60px;
+  }
+
+  .partner-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .partner-card:hover {
+    border-color: rgba(38,161,123,0.3);
+    background: rgba(38,161,123,0.05);
+    transform: translateY(-3px);
+  }
+
+  .partner-icon { font-size: 36px; margin-bottom: 12px; }
+
+  .partner-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .partner-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ===== CTA ===== */
+  .cta-section {
+    text-align: center;
+    padding: 100px 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-box {
+    background: linear-gradient(135deg, rgba(38,161,123,0.1), rgba(26,79,196,0.1));
+    border: 1px solid rgba(38,161,123,0.25);
+    border-radius: 32px;
+    padding: 80px 40px;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(38,161,123,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .cta-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .cta-box p {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid rgba(38,161,123,0.1);
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .footer-text {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: var(--green-light); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section { padding: 60px 20px; }
+    .token-card { grid-template-columns: 1fr; }
+    .stats { padding: 40px 20px; }
+    footer { flex-direction: column; text-align: center; }
+  }
+
+  /* ===== COIN ANIMATION ===== */
+  @keyframes coinFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-12px) rotate(2deg); }
+    66% { transform: translateY(-6px) rotate(-1deg); }
+  }
+
+  .coin-float { animation: coinFloat 6s ease-in-out infinite; }
+
+  /* ===== SCROLL ANIMATIONS ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: all 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow-2"></div>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="nb" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1a4fc4"/>
+          <stop offset="100%" style="stop-color:#0d2d8a"/>
+        </linearGradient>
+        <linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#2ab88a"/>
+          <stop offset="100%" style="stop-color:#14825c"/>
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="98" fill="url(#nb)"/>
+      <circle cx="100" cy="100" r="88" fill="url(#ng)"/>
+      <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.6"/>
+      <circle cx="100" cy="100" r="73" fill="none" stroke="white" stroke-width="1.5" opacity="0.35"/>
+      <text x="100" y="116" font-family="Arial Black,sans-serif" font-size="86" font-weight="900" text-anchor="middle" fill="white">R</text>
+      <rect x="32" y="86" width="136" height="9" rx="4" fill="white"/>
+    </svg>
+    <span class="nav-logo-text">Ru<span>Coin</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">Как работает</a></li>
+    <li><a href="#token">Токен</a></li>
+    <li><a href="#partners">Партнёры</a></li>
+    <li><a href="https://t.me/RuCoinOfficial" target="_blank" class="nav-btn">Telegram</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🚀 Запущен на Polygon • Торгуется на QuickSwap</div>
+
+    <div class="hero-logo coin-float">
+      <svg width="120" height="120" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="hb" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a4fc4"/>
+            <stop offset="100%" style="stop-color:#0d2d8a"/>
+          </linearGradient>
+          <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ab88a"/>
+            <stop offset="50%" style="stop-color:#1fa575"/>
+            <stop offset="100%" style="stop-color:#14825c"/>
+          </linearGradient>
+          <radialGradient id="hs" cx="38%" cy="32%" r="55%">
+            <stop offset="0%" style="stop-color:#fff;stop-opacity:0.15"/>
+            <stop offset="100%" style="stop-color:#000;stop-opacity:0"/>
+          </radialGradient>
+          <filter id="hf"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#26a17b" flood-opacity="0.4"/></filter>
+        </defs>
+        <circle cx="100" cy="100" r="98" fill="url(#hb)" filter="url(#hf)"/>
+        <circle cx="100" cy="100" r="88" fill="url(#hg)"/>
+        <circle cx="100" cy="100" r="88" fill="url(#hs)"/>
+        <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
+        <circle cx="100" cy="100" r="73" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+        <text x="100" y="116" font-family="Arial Black,sans-serif" font-size="86" font-weight="900" text-anchor="middle" fill="white">R</text>
+        <rect x="32" y="86" width="136" height="9" rx="4.5" fill="white"/>
+      </svg>
+    </div>
+
+    <h1>
+      Игровая валюта
+      <span class="highlight">нового поколения</span>
+    </h1>
+
+    <p class="hero-sub">
+      RuCoin (RUS) — децентрализованный токен на блокчейне Polygon.
+      Зарабатывай в турнирах, трать у партнёров, обменивай с игроками.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="https://dapp.quickswap.exchange/#/swap?outputCurrency=0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575" target="_blank" class="btn-primary">
+        Купить RuCoin
+      </a>
+      <a href="https://t.me/RuCoinOfficial" target="_blank" class="btn-secondary">
+        Telegram канал
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats reveal">
+  <div class="stat">
+    <span class="stat-number">100M</span>
+    <span class="stat-label">Токенов выпущено</span>
+  </div>
+  <div class="stat">
+    <span class="stat-number">1 ₽</span>
+    <span class="stat-label">Стоимость токена</span>
+  </div>
+  <div class="stat">
+    <span class="stat-number">Polygon</span>
+    <span class="stat-label">Блокчейн</span>
+  </div>
+  <div class="stat">
+    <span class="stat-number">0.01%</span>
+    <span class="stat-label">Комиссия пула</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="reveal">
+    <p class="section-label">Как это работает</p>
+    <h2 class="section-title">Просто. Быстро. Выгодно.</h2>
+    <p class="section-desc">Зарабатывай токены участвуя в турнирах и трать их у партнёров или обменивай с другими игроками.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div class="step-icon">🎮</div>
+      <h3>Участвуй в турнирах</h3>
+      <p>Побеждай в игровых турнирах и получай RuCoin как призовые. Чем лучше играешь — тем больше зарабатываешь.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div class="step-icon">👛</div>
+      <h3>Храни в кошельке</h3>
+      <p>Токены хранятся в твоём крипто кошельке. MetaMask, Trust Wallet — любой кошелёк поддерживающий Polygon.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div class="step-icon">🔄</div>
+      <h3>Обменивай и торгуй</h3>
+      <p>Передавай токены другим игрокам, покупай и продавай на QuickSwap. Полная свобода распоряжения.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <div class="step-icon">🛍️</div>
+      <h3>Трать у партнёров</h3>
+      <p>Оплачивай бургеры, пиццу, компьютерные аксессуары у партнёров сети. Реальная ценность токена.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TOKEN INFO -->
+<section id="token">
+  <div class="reveal">
+    <p class="section-label">Токен</p>
+    <h2 class="section-title">RuCoin (RUS)</h2>
+    <p class="section-desc">Полностью децентрализованный токен стандарта ERC-20 на блокчейне Polygon с фиксированной привязкой к рублю.</p>
+  </div>
+
+  <div class="token-card reveal">
+    <div class="token-details">
+      <div class="token-row">
+        <span class="token-row-label">Название</span>
+        <span class="token-row-value green">RuCoin</span>
+      </div>
+      <div class="token-row">
+        <span class="token-row-label">Тикер</span>
+        <span class="token-row-value green">RUS</span>
+      </div>
+      <div class="token-row">
+        <span class="token-row-label">Сеть</span>
+        <span class="token-row-value">Polygon (MATIC)</span>
+      </div>
+      <div class="token-row">
+        <span class="token-row-label">Стандарт</span>
+        <span class="token-row-value">ERC-20</span>
+      </div>
+      <div class="token-row">
+        <span class="token-row-label">Всего токенов</span>
+        <span class="token-row-value green">100,000,000 RUS</span>
+      </div>
+      <div class="token-row">
+        <span class="token-row-label">Цена</span>
+        <span class="token-row-value green">1 RUS = 1 ₽</span>
+      </div>
+      <div class="token-row">
+        <span class="token-row-label">Биржа</span>
+        <span class="token-row-value">QuickSwap DEX</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <svg width="160" height="160" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="tb" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a4fc4"/>
+            <stop offset="100%" style="stop-color:#0d2d8a"/>
+          </linearGradient>
+          <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ab88a"/>
+            <stop offset="100%" style="stop-color:#14825c"/>
+          </linearGradient>
+          <filter id="tf"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#26a17b" flood-opacity="0.35"/></filter>
+        </defs>
+        <circle cx="100" cy="100" r="98" fill="url(#tb)" filter="url(#tf)"/>
+        <circle cx="100" cy="100" r="88" fill="url(#tg)"/>
+        <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
+        <circle cx="100" cy="100" r="73" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+        <text x="100" y="116" font-family="Arial Black,sans-serif" font-size="86" font-weight="900" text-anchor="middle" fill="white">R</text>
+        <rect x="32" y="86" width="136" height="9" rx="4.5" fill="white"/>
+        <text x="100" y="155" font-family="Arial,sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="white" opacity="0.7" letter-spacing="3">RuCoin</text>
+      </svg>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:16px;">Торгуется на QuickSwap</p>
+      <a href="https://dapp.quickswap.exchange/#/swap?outputCurrency=0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575" target="_blank" class="btn-primary" style="display:inline-block;margin-top:16px;font-size:13px;padding:12px 28px;">
+        Купить на QuickSwap →
+      </a>
+    </div>
+  </div>
+
+  <div class="contract-address reveal">
+    <div>
+      <div class="contract-label">Адрес контракта (Polygon)</div>
+      <div class="contract-value">0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575</div>
+    </div>
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575');this.textContent='Скопировано ✓'">
+      Скопировать
+    </button>
+  </div>
+</section>
+
+<!-- PARTNERS -->
+<section id="partners">
+  <div class="reveal">
+    <p class="section-label">Партнёры</p>
+    <h2 class="section-title">Трать токены<br>в реальной жизни</h2>
+    <p class="section-desc">RuCoin принимают партнёры сети — рестораны, магазины аксессуаров, компьютерные клубы.</p>
+  </div>
+
+  <div class="partners-grid">
+    <div class="partner-card reveal">
+      <div class="partner-icon">🍔</div>
+      <div class="partner-name">Бургерные</div>
+      <div class="partner-desc">Обменяй токены на вкусный бургер у партнёров сети</div>
+    </div>
+    <div class="partner-card reveal">
+      <div class="partner-icon">🍕</div>
+      <div class="partner-name">Пиццерии</div>
+      <div class="partner-desc">Оплачивай пиццу RuCoin токенами</div>
+    </div>
+    <div class="partner-card reveal">
+      <div class="partner-icon">🖱️</div>
+      <div class="partner-name">Аксессуары</div>
+      <div class="partner-desc">Мышки, клавиатуры, гарнитуры за токены</div>
+    </div>
+    <div class="partner-card reveal">
+      <div class="partner-icon">🖥️</div>
+      <div class="partner-name">Компьютеры</div>
+      <div class="partner-desc">Покупай технику у партнёров за RuCoin</div>
+    </div>
+    <div class="partner-card reveal">
+      <div class="partner-icon">🎮</div>
+      <div class="partner-name">Клубы</div>
+      <div class="partner-desc">Оплачивай время в игровых клубах</div>
+    </div>
+    <div class="partner-card reveal">
+      <div class="partner-icon">🏆</div>
+      <div class="partner-name">Турниры</div>
+      <div class="partner-desc">Участвуй в турнирах и зарабатывай токены</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-box reveal">
+    <h2>Начни зарабатывать<br>RuCoin сегодня</h2>
+    <p>Присоединяйся к сообществу геймеров которые уже используют RuCoin в турнирах и у партнёров.</p>
+    <div class="hero-buttons">
+      <a href="https://dapp.quickswap.exchange/#/swap?outputCurrency=0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575" target="_blank" class="btn-primary">
+        Купить RuCoin
+      </a>
+      <a href="https://t.me/RuCoinOfficial" target="_blank" class="btn-secondary">
+        Присоединиться
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-text">© 2025 RuCoin. Токен на блокчейне Polygon.</span>
+  <div class="footer-links">
+    <a href="https://polygonscan.com/address/0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575" target="_blank">Polygonscan</a>
+    <a href="https://dapp.quickswap.exchange/#/swap?outputCurrency=0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575" target="_blank">QuickSwap</a>
+    <a href="https://t.me/RuCoinOfficial" target="_blank">Telegram</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
