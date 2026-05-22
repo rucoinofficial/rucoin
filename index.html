@@ -704,6 +704,7 @@
       <a href="https://t.me/RuCoin_RUS" target="_blank" class="btn-secondary">
         Telegram канал
       </a>
+      <button onclick="addRuCoinToMetaMask()" class="btn-primary">🦊 Добавить в MetaMask</button>
     </div>
   </div>
 </div>
@@ -922,6 +923,22 @@
   }, { threshold: 0.1 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  async function addRuCoinToMetaMask() {
+  try {
+    await window.ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: '0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575',
+          symbol: 'RUS',
+          decimals: 18,
+          image: 'https://rucoinofficial.github.io/rucoin/logo.png'
+        }
+      }
+    });
+  } catch(e) { console.log(e); }
+}
 </script>
 
 </body>
