@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RuCoin Private Wallet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #050f0a;
+    font-family: 'Arial', sans-serif;
+    color: #e8f5f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .container { width: 100%; max-width: 480px; padding: 20px; }
+  .logo { text-align: center; margin-bottom: 32px; }
+  .logo h1 { font-size: 28px; color: #26a17b; letter-spacing: 3px; }
+  .logo p { font-size: 13px; color: #7ab89a; margin-top: 6px; }
+  .card {
+    background: rgba(38,161,123,0.06);
+    border: 1px solid rgba(38,161,123,0.2);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .card h2 { font-size: 16px; color: #26a17b; margin-bottom: 20px; letter-spacing: 1px; }
+  .step { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #26a17b; color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: bold; flex-shrink: 0;
+  }
+  .step-text { font-size: 13px; color: #7ab89a; }
+  label {
+    display: block; font-size: 12px; color: #7ab89a;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 8px; margin-top: 16px;
+  }
+  input, select {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(38,161,123,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #e8f5f0;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  input:focus, select:focus { border-color: #26a17b; }
+  select option { background: #050f0a; }
+  .fee-info {
+    background: rgba(38,161,123,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #7ab89a;
+    display: flex;
+    justify-content: space-between;
+  }
+  .btn {
+    width: 100%; padding: 16px; border-radius: 12px;
+    border: none; font-size: 15px; font-weight: bold;
+    cursor: pointer; transition: all 0.3s;
+    margin-top: 16px; letter-spacing: 1px;
+  }
+  .btn-primary { background: #26a17b; color: white; }
+  .btn-primary:hover { background: #2dd4a0; transform: translateY(-2px); }
+  .btn-primary:disabled { background: #1a5040; cursor: not-allowed; transform: none; }
+  .btn-metamask { background: #f6851b; color: white; }
+  .btn-metamask:hover { background: #e2761b; transform: translateY(-2px); }
+  .wallet-info {
+    background: rgba(38,161,123,0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #2dd4a0;
+    margin-top: 12px;
+    display: none;
+    word-break: break-all;
+  }
+  .result-card {
+    display: none;
+    background: rgba(38,161,123,0.08);
+    border: 1px solid rgba(38,161,123,0.3);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .result-card h3 { color: #26a17b; font-size: 18px; margin-bottom: 16px; }
+  .pool-address {
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #2dd4a0;
+    word-break: break-all;
+    margin: 12px 0;
+  }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid #26a17b;
+    color: #26a17b;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { background: #26a17b; color: white; }
+  .warning {
+    background: rgba(255,160,0,0.08);
+    border: 1px solid rgba(255,160,0,0.3);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 12px;
+    color: #ffa000;
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+  .success {
+    background: rgba(38,161,123,0.15);
+    border: 1px solid rgba(38,161,123,0.4);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 12px;
+    color: #2dd4a0;
+    margin-top: 12px;
+    line-height: 1.6;
+    display: none;
+  }
+  .status {
+    text-align: center;
+    padding: 12px;
+    font-size: 13px;
+    color: #7ab89a;
+    margin-top: 8px;
+  }
+  .footer { text-align: center; margin-top: 24px; font-size: 11px; color: #3a6050; }
+  .tx-hash {
+    font-family: monospace;
+    font-size: 11px;
+    color: #2dd4a0;
+    word-break: break-all;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="logo">
+    <svg width="60" height="60" viewBox="0 0 200 200" style="margin-bottom:12px">
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1a4fc4"/>
+          <stop offset="100%" style="stop-color:#0d2d8a"/>
+        </linearGradient>
+        <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#2ab88a"/>
+          <stop offset="100%" style="stop-color:#14825c"/>
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="98" fill="url(#bg)"/>
+      <circle cx="100" cy="100" r="88" fill="url(#gr)"/>
+      <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
+      <circle cx="100" cy="100" r="73" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+      <text x="100" y="116" font-family="Arial Black,sans-serif" font-size="86" font-weight="900" text-anchor="middle" fill="white">R</text>
+      <rect x="32" y="86" width="136" height="9" rx="4.5" fill="white"/>
+    </svg>
+    <h1>RuCoin Wallet</h1>
+    <p>Приватные платежи на блокчейне</p>
+  </div>
+
+  <!-- Шаг 1: Подключение кошелька -->
+  <div class="card" id="connectCard">
+    <h2>👛 ПОДКЛЮЧИТЕ КОШЕЛЁК</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Подключите MetaMask</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Введите адрес получателя и сумму</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Подтвердите транзакцию</div>
+    </div>
+    <button class="btn btn-metamask" onclick="connectWallet()">
+      🦊 Подключить MetaMask
+    </button>
+    <div class="wallet-info" id="walletInfo"></div>
+  </div>
+
+  <!-- Шаг 2: Форма платежа -->
+  <div class="card" id="formCard" style="display:none">
+    <h2>🔒 АНОНИМНЫЙ ПЕРЕВОД</h2>
+
+    <label>Адрес получателя</label>
+    <input type="text" id="recipient" placeholder="0x..."/>
+
+    <label>Токен</label>
+    <select id="token" onchange="updateFee()">
+      <option value="RUS">RuCoin (RUS)</option>
+      <option value="USDT">USDT</option>
+    </select>
+
+    <label>Сумма</label>
+    <input type="number" id="amount" placeholder="Введите сумму" oninput="updateFee()"/>
+
+    <div class="fee-info">
+      <span>Комиссия за анонимность:</span>
+      <span id="feeAmount">0 RUS</span>
+    </div>
+
+    <button class="btn btn-primary" id="sendBtn" onclick="sendPayment()">
+      🔒 Отправить анонимно
+    </button>
+
+    <div class="success" id="successMsg"></div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="footer">
+    Powered by RuCoin • Polygon Network
+  </div>
+</div>
+
+<script>
+  const POOL1_ADDRESS = "0xE7A92a0669ff768dAAC1b5860a4A56924c2fa52a";
+  const RUS_ADDRESS = "0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575";
+  const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
+  const POLYGON_CHAIN_ID = "0x89";
+
+  const ERC20_ABI = [
+    "function approve(address spender, uint256 amount) external returns (bool)",
+    "function allowance(address owner, address spender) external view returns (uint256)",
+    "function balanceOf(address account) external view returns (uint256)",
+    "function decimals() external view returns (uint8)"
+  ];
+
+  const POOL1_ABI = [
+    "function deposit(address _token, uint256 _amount, bytes32 _encryptedRecipient) external"
+  ];
+
+  let provider, signer, userAddress;
+
+  async function connectWallet() {
+    if (!window.ethereum) {
+      alert('MetaMask не установлен! Установите MetaMask и попробуйте снова.');
+      return;
+    }
+
+    try {
+      setStatus('Подключаем MetaMask...');
+
+      // Запрашиваем доступ
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      // Проверяем сеть
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      if (chainId !== POLYGON_CHAIN_ID) {
+        setStatus('Переключаем на Polygon...');
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: POLYGON_CHAIN_ID }]
+          });
+        } catch (e) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: POLYGON_CHAIN_ID,
+              chainName: 'Polygon Mainnet',
+              nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+              rpcUrls: ['https://polygon-rpc.com'],
+              blockExplorerUrls: ['https://polygonscan.com']
+            }]
+          });
+        }
+      }
+
+      provider = new ethers.BrowserProvider(window.ethereum);
+      signer = await provider.getSigner();
+      userAddress = await signer.getAddress();
+
+      // Показываем адрес
+      document.getElementById('walletInfo').style.display = 'block';
+      document.getElementById('walletInfo').textContent =
+        '✅ Подключён: ' + userAddress.slice(0,6) + '...' + userAddress.slice(-4);
+
+      // Показываем форму
+      document.getElementById('formCard').style.display = 'block';
+      setStatus('Кошелёк подключён! Заполните форму.');
+
+    } catch (e) {
+      setStatus('Ошибка: ' + e.message);
+    }
+  }
+
+  function encryptRecipient(address) {
+    // Кодируем адрес в bytes32
+    return '0x' + '000000000000000000000000' + address.slice(2).toLowerCase();
+  }
+
+  async function sendPayment() {
+    const recipient = document.getElementById('recipient').value.trim();
+    const tokenSymbol = document.getElementById('token').value;
+    const amount = document.getElementById('amount').value;
+
+    if (!recipient || !recipient.startsWith('0x') || recipient.length !== 42) {
+      alert('Введите правильный адрес получателя!');
+      return;
+    }
+    if (!amount || parseFloat(amount) <= 0) {
+      alert('Введите сумму!');
+      return;
+    }
+
+    const tokenAddress = tokenSymbol === 'RUS' ? RUS_ADDRESS : USDT_ADDRESS;
+    const btn = document.getElementById('sendBtn');
+
+    try {
+      btn.disabled = true;
+      btn.textContent = '⏳ Обрабатываем...';
+
+      const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+      const decimals = await tokenContract.decimals();
+      const amountWei = ethers.parseUnits(amount, decimals);
+
+      // Шаг 1: Approve
+      setStatus('Шаг 1/2: Подтвердите разрешение в MetaMask...');
+      const approveTx = await tokenContract.approve(POOL1_ADDRESS, amountWei);
+      await approveTx.wait();
+      setStatus('Разрешение получено! Шаг 2/2...');
+
+      // Шаг 2: Deposit
+      const pool1 = new ethers.Contract(POOL1_ADDRESS, POOL1_ABI, signer);
+      const encryptedRecipient = encryptRecipient(recipient);
+
+      setStatus('Шаг 2/2: Подтвердите транзакцию в MetaMask...');
+      const depositTx = await pool1.deposit(tokenAddress, amountWei, encryptedRecipient);
+      await depositTx.wait();
+
+      // Успех!
+      const successMsg = document.getElementById('successMsg');
+      successMsg.style.display = 'block';
+      successMsg.innerHTML = `
+        ✅ Транзакция отправлена!<br>
+        Получатель получит средства через ~30 секунд.<br>
+        <div class="tx-hash">TX: ${depositTx.hash}</div>
+      `;
+
+      setStatus('');
+      btn.textContent = '✅ Успешно!';
+      btn.style.background = '#26a17b';
+
+    } catch (e) {
+      setStatus('Ошибка: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = '🔒 Отправить анонимно';
+    }
+  }
+
+  function updateFee() {
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const fee = (amount * 0.01).toFixed(2);
+    document.getElementById('feeAmount').textContent = fee + ' RUS';
+  }
+
+  function setStatus(msg) {
+    document.getElementById('status').textContent = msg;
+  }
+</script>
+</body>
+</html>
