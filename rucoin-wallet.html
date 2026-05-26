@@ -3,384 +3,341 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RuCoin Private Wallet</title>
+<title>RuCoin Private</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #050f0a;
-    font-family: 'Arial', sans-serif;
-    color: #e8f5f0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .container { width: 100%; max-width: 480px; padding: 20px; }
-  .logo { text-align: center; margin-bottom: 32px; }
-  .logo h1 { font-size: 28px; color: #26a17b; letter-spacing: 3px; }
-  .logo p { font-size: 13px; color: #7ab89a; margin-top: 6px; }
-  .card {
-    background: rgba(38,161,123,0.06);
-    border: 1px solid rgba(38,161,123,0.2);
-    border-radius: 20px;
-    padding: 28px;
-    margin-bottom: 16px;
-  }
-  .card h2 { font-size: 16px; color: #26a17b; margin-bottom: 20px; letter-spacing: 1px; }
-  .step { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .step-num {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: #26a17b; color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: bold; flex-shrink: 0;
-  }
-  .step-text { font-size: 13px; color: #7ab89a; }
-  label {
-    display: block; font-size: 12px; color: #7ab89a;
-    letter-spacing: 1px; text-transform: uppercase;
-    margin-bottom: 8px; margin-top: 16px;
-  }
-  input, select {
-    width: 100%;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(38,161,123,0.3);
-    border-radius: 12px;
-    padding: 14px 16px;
-    color: #e8f5f0;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.3s;
-  }
+  body { background: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #fff; min-height: 100vh; }
+  .navbar { background: #141414; border-bottom: 1px solid #2a2a2a; padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo { display: flex; align-items: center; gap: 12px; }
+  .nav-name { font-size: 18px; font-weight: 700; color: #26a17b; letter-spacing: 1px; }
+  .nav-badge { background: rgba(38,161,123,0.15); border: 1px solid rgba(38,161,123,0.3); color: #26a17b; font-size: 11px; padding: 4px 10px; border-radius: 4px; }
+  .nav-right { font-size: 12px; color: #555; letter-spacing: 1px; }
+  .main { max-width: 520px; margin: 60px auto; padding: 0 20px; }
+  .page-title { text-align: center; margin-bottom: 40px; }
+  .page-title h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .page-title h1 span { color: #26a17b; }
+  .page-title p { font-size: 14px; color: #666; }
+  .card { background: #141414; border: 1px solid #2a2a2a; border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+  .card-header { padding: 20px 24px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: space-between; }
+  .card-header-title { font-size: 13px; font-weight: 600; color: #888; letter-spacing: 1px; text-transform: uppercase; }
+  .card-header-badge { font-size: 11px; color: #26a17b; background: rgba(38,161,123,0.1); padding: 3px 8px; border-radius: 4px; }
+  .card-body { padding: 24px; }
+  .btn-metamask { width: 100%; padding: 14px; background: #26a17b; border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-metamask:hover { background: #2dd4a0; transform: translateY(-1px); }
+  .btn-metamask:disabled { background: #1a5040; cursor: not-allowed; transform: none; }
+  .wallet-info { display: none; margin-top: 12px; padding: 12px 16px; background: rgba(38,161,123,0.08); border: 1px solid rgba(38,161,123,0.2); border-radius: 8px; font-size: 12px; color: #26a17b; font-family: monospace; }
+  .form { display: none; }
+  .field { margin-bottom: 20px; }
+  .field-label { font-size: 12px; font-weight: 600; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  input, select { width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 13px 16px; color: #fff; font-size: 14px; outline: none; transition: all 0.2s; font-family: inherit; }
   input:focus, select:focus { border-color: #26a17b; }
-  select option { background: #050f0a; }
-  .fee-info {
-    background: rgba(38,161,123,0.08);
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-top: 12px;
-    font-size: 12px;
-    color: #7ab89a;
-    display: flex;
-    justify-content: space-between;
-  }
-  .btn {
-    width: 100%; padding: 16px; border-radius: 12px;
-    border: none; font-size: 15px; font-weight: bold;
-    cursor: pointer; transition: all 0.3s;
-    margin-top: 16px; letter-spacing: 1px;
-  }
-  .btn-primary { background: #26a17b; color: white; }
-  .btn-primary:hover { background: #2dd4a0; transform: translateY(-2px); }
-  .btn-primary:disabled { background: #1a5040; cursor: not-allowed; transform: none; }
-  .btn-metamask { background: #f6851b; color: white; }
-  .btn-metamask:hover { background: #e2761b; transform: translateY(-2px); }
-  .wallet-info {
-    background: rgba(38,161,123,0.1);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: #2dd4a0;
-    margin-top: 12px;
-    display: none;
-    word-break: break-all;
-  }
-  .result-card {
-    display: none;
-    background: rgba(38,161,123,0.08);
-    border: 1px solid rgba(38,161,123,0.3);
-    border-radius: 20px;
-    padding: 28px;
-    margin-bottom: 16px;
-    text-align: center;
-  }
-  .result-card h3 { color: #26a17b; font-size: 18px; margin-bottom: 16px; }
-  .pool-address {
-    background: rgba(0,0,0,0.4);
-    border-radius: 10px;
-    padding: 14px;
-    font-family: monospace;
-    font-size: 11px;
-    color: #2dd4a0;
-    word-break: break-all;
-    margin: 12px 0;
-  }
-  .copy-btn {
-    background: transparent;
-    border: 1px solid #26a17b;
-    color: #26a17b;
-    padding: 8px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
-  }
-  .copy-btn:hover { background: #26a17b; color: white; }
-  .warning {
-    background: rgba(255,160,0,0.08);
-    border: 1px solid rgba(255,160,0,0.3);
-    border-radius: 12px;
-    padding: 14px;
-    font-size: 12px;
-    color: #ffa000;
-    margin-top: 12px;
-    line-height: 1.6;
-  }
-  .success {
-    background: rgba(38,161,123,0.15);
-    border: 1px solid rgba(38,161,123,0.4);
-    border-radius: 12px;
-    padding: 14px;
-    font-size: 12px;
-    color: #2dd4a0;
-    margin-top: 12px;
-    line-height: 1.6;
-    display: none;
-  }
-  .status {
-    text-align: center;
-    padding: 12px;
-    font-size: 13px;
-    color: #7ab89a;
-    margin-top: 8px;
-  }
-  .footer { text-align: center; margin-top: 24px; font-size: 11px; color: #3a6050; }
-  .tx-hash {
-    font-family: monospace;
-    font-size: 11px;
-    color: #2dd4a0;
-    word-break: break-all;
-    margin-top: 8px;
-  }
+  select option { background: #1a1a1a; }
+  .amounts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .amount-btn { padding: 12px 8px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #888; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit; }
+  .amount-btn:hover { border-color: #26a17b; color: #26a17b; }
+  .amount-btn.active { background: rgba(38,161,123,0.1); border-color: #26a17b; color: #26a17b; }
+  .info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; font-size: 13px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-row-label { color: #666; }
+  .info-row-value { color: #26a17b; font-weight: 500; }
+  .btn-send { width: 100%; padding: 15px; background: #26a17b; border: none; border-radius: 8px; color: white; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .btn-send:hover { background: #2dd4a0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(38,161,123,0.3); }
+  .btn-send:disabled { background: #1a5040; cursor: not-allowed; transform: none; }
+  .success { display: none; margin-top: 16px; padding: 20px; background: rgba(38,161,123,0.08); border: 1px solid rgba(38,161,123,0.25); border-radius: 8px; text-align: center; }
+  .success-icon { width: 48px; height: 48px; background: #26a17b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 12px; }
+  .success h3 { font-size: 16px; color: #26a17b; margin-bottom: 6px; }
+  .success p { font-size: 13px; color: #666; line-height: 1.6; }
+  .tx-link { font-size: 11px; color: #26a17b; font-family: monospace; word-break: break-all; margin-top: 8px; opacity: 0.7; display: block; }
+  .status { text-align: center; font-size: 13px; color: #555; padding: 10px 0; min-height: 36px; }
+  .info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+  .info-card { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; text-align: center; }
+  .info-card-icon { font-size: 20px; margin-bottom: 8px; }
+  .info-card-title { font-size: 11px; font-weight: 600; color: #26a17b; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .info-card-desc { font-size: 11px; color: #555; line-height: 1.4; }
+  footer { text-align: center; padding: 40px 20px; font-size: 12px; color: #333; letter-spacing: 1px; }
+  footer span { color: #26a17b; margin: 0 4px; }
 </style>
 </head>
 <body>
-<div class="container">
-
-  <div class="logo">
-    <svg width="60" height="60" viewBox="0 0 200 200" style="margin-bottom:12px">
+<nav class="navbar">
+  <div class="nav-logo">
+    <svg width="36" height="36" viewBox="0 0 200 200">
       <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="nb" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:#1a4fc4"/>
           <stop offset="100%" style="stop-color:#0d2d8a"/>
         </linearGradient>
-        <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#2ab88a"/>
+        <linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#26a17b"/>
           <stop offset="100%" style="stop-color:#14825c"/>
         </linearGradient>
       </defs>
-      <circle cx="100" cy="100" r="98" fill="url(#bg)"/>
-      <circle cx="100" cy="100" r="88" fill="url(#gr)"/>
-      <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
-      <circle cx="100" cy="100" r="73" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+      <circle cx="100" cy="100" r="98" fill="url(#nb)"/>
+      <circle cx="100" cy="100" r="88" fill="url(#ng)"/>
+      <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.6"/>
+      <circle cx="100" cy="100" r="73" fill="none" stroke="white" stroke-width="1.5" opacity="0.35"/>
       <text x="100" y="116" font-family="Arial Black,sans-serif" font-size="86" font-weight="900" text-anchor="middle" fill="white">R</text>
       <rect x="32" y="86" width="136" height="9" rx="4.5" fill="white"/>
     </svg>
-    <h1>RuCoin Wallet</h1>
-    <p>Приватные платежи на блокчейне</p>
+    <span class="nav-name">RuCoin</span>
+    <span class="nav-badge">PRIVATE</span>
+  </div>
+  <div class="nav-right">POLYGON NETWORK</div>
+</nav>
+
+<div class="main">
+  <div class="page-title">
+    <h1>Анонимные <span>платежи</span></h1>
+    <p>E2E Encryption • Polygon Network</p>
   </div>
 
-  <!-- Шаг 1: Подключение кошелька -->
-  <div class="card" id="connectCard">
-    <h2>👛 ПОДКЛЮЧИТЕ КОШЕЛЁК</h2>
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-text">Подключите MetaMask</div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-title">Кошелёк</span>
+      <span class="card-header-badge">Web3</span>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-text">Введите адрес получателя и сумму</div>
+    <div class="card-body">
+      <button class="btn-metamask" id="connectBtn" onclick="connectWallet()">
+        🦊 Подключить MetaMask
+      </button>
+      <div class="wallet-info" id="walletInfo"></div>
     </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-text">Подтвердите транзакцию</div>
-    </div>
-    <button class="btn btn-metamask" onclick="connectWallet()">
-      🦊 Подключить MetaMask
-    </button>
-    <div class="wallet-info" id="walletInfo"></div>
   </div>
 
-  <!-- Шаг 2: Форма платежа -->
-  <div class="card" id="formCard" style="display:none">
-    <h2>🔒 АНОНИМНЫЙ ПЕРЕВОД</h2>
-
-    <label>Адрес получателя</label>
-    <input type="text" id="recipient" placeholder="0x..."/>
-
-    <label>Токен</label>
-    <select id="token" onchange="updateFee()">
-      <option value="RUS">RuCoin (RUS)</option>
-      <option value="USDT">USDT</option>
-    </select>
-
-    <label>Сумма</label>
-    <input type="number" id="amount" placeholder="Введите сумму" oninput="updateFee()"/>
-
-    <div class="fee-info">
-      <span>Комиссия за анонимность:</span>
-      <span id="feeAmount">0 RUS</span>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-title">Перевод</span>
+      <span class="card-header-badge">🔒 Анонимно</span>
     </div>
-
-    <button class="btn btn-primary" id="sendBtn" onclick="sendPayment()">
-      🔒 Отправить анонимно
-    </button>
-
-    <div class="success" id="successMsg"></div>
+    <div class="card-body">
+      <div id="formPlaceholder" style="text-align:center;padding:20px;color:#444;font-size:13px">
+        Подключите кошелёк для начала работы
+      </div>
+      <div class="form" id="form">
+        <div class="field">
+          <label class="field-label">Токен</label>
+          <select id="token" onchange="updateAmounts()">
+            <option value="RUS">RuCoin (RUS)</option>
+            <option value="USDT">USDT</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Сумма</label>
+          <div class="amounts-grid" id="amounts"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Адрес получателя</label>
+          <input type="text" id="recipient" placeholder="0x..."/>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-body" style="padding:16px">
+            <div class="info-row">
+              <span class="info-row-label">Протокол</span>
+              <span class="info-row-value">ECDH + AES-256-GCM</span>
+            </div>
+            <div class="info-row">
+              <span class="info-row-label">Комиссия сети</span>
+              <span class="info-row-value">~$0.001</span>
+            </div>
+            <div class="info-row">
+              <span class="info-row-label">Время обработки</span>
+              <span class="info-row-value">~30 секунд</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-send" id="sendBtn" onclick="sendPayment()">
+          🔒 Отправить анонимно
+        </button>
+        <div class="success" id="successBox">
+          <div class="success-icon">✓</div>
+          <h3>Транзакция принята</h3>
+          <p>Средства поступят получателю через анонимный маршрут в течение 30 секунд.</p>
+          <span class="tx-link" id="txHash"></span>
+        </div>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
   </div>
 
-  <div class="status" id="status"></div>
-
-  <div class="footer">
-    Powered by RuCoin • Polygon Network
+  <div class="info-cards">
+    <div class="info-card">
+      <div class="info-card-icon">🔐</div>
+      <div class="info-card-title">Анонимно</div>
+      <div class="info-card-desc">ECDH шифрование скрывает получателя</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">⚡</div>
+      <div class="info-card-title">Быстро</div>
+      <div class="info-card-desc">Транзакция за ~30 секунд</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🛡️</div>
+      <div class="info-card-title">Безопасно</div>
+      <div class="info-card-desc">Смарт-контракты Polygon</div>
+    </div>
   </div>
 </div>
 
+<footer>RuCoin Protocol <span>•</span> Polygon Network <span>•</span> 2026</footer>
+
 <script>
-  const POOL1_ADDRESS = "0xE7A92a0669ff768dAAC1b5860a4A56924c2fa52a";
-  const RUS_ADDRESS = "0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575";
-  const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-  const POLYGON_CHAIN_ID = "0x89";
+const POOL1_ADDRESS = "0x4cCcf8047fC0e6cbe8c2a63E5D697eF1c6c77D6e";
+const RUS_ADDRESS = "0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575";
+const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
+const POLYGON_CHAIN_ID = "0x89";
 
-  const ERC20_ABI = [
-    "function approve(address spender, uint256 amount) external returns (bool)",
-    "function allowance(address owner, address spender) external view returns (uint256)",
-    "function balanceOf(address account) external view returns (uint256)",
-    "function decimals() external view returns (uint8)"
-  ];
+// Публичный ключ сервера — raw X,Y точка на кривой P-256
+const SERVER_PUBLIC_KEY_HEX = "041cb4242e64bc4b2663952c1543a64cfd8fcf40fae2e298085ce88e0a5cb5d27636958af51cbdff99dce8110a8844ed80b4b796d6f4e7c9a850774f1b98132747";
 
-  const POOL1_ABI = [
-    "function deposit(address _token, uint256 _amount, bytes32 _encryptedRecipient) external"
-  ];
+const RUS_AMOUNTS = ["100","500","1000","5000","10000","100000","500000","1000000"];
+const USDT_AMOUNTS = ["10","50","100","500"];
 
-  let provider, signer, userAddress;
+const POOL1_ABI = [
+  "function deposit(address _token, uint256 _amount, bytes32 _commitment, bytes calldata _encryptedRecipient) external"
+];
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function decimals() external view returns (uint8)"
+];
 
-  async function connectWallet() {
-    if (!window.ethereum) {
-      alert('MetaMask не установлен! Установите MetaMask и попробуйте снова.');
-      return;
-    }
+let provider, signer, selectedAmount = null;
 
-    try {
-      setStatus('Подключаем MetaMask...');
+function updateAmounts() {
+  const token = document.getElementById('token').value;
+  const amounts = token === 'RUS' ? RUS_AMOUNTS : USDT_AMOUNTS;
+  const unit = token === 'RUS' ? 'RUS' : 'USDT';
+  const labels = {"100":"100","500":"500","1000":"1K","5000":"5K","10000":"10K","100000":"100K","500000":"500K","1000000":"1M","10":"10","50":"50"};
+  document.getElementById('amounts').innerHTML = amounts.map(a =>
+    `<button class="amount-btn" onclick="selectAmount('${a}',this)">${labels[a]||a} ${unit}</button>`
+  ).join('');
+  selectedAmount = null;
+}
 
-      // Запрашиваем доступ
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+function selectAmount(value, btn) {
+  selectedAmount = value;
+  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
 
-      // Проверяем сеть
-      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-      if (chainId !== POLYGON_CHAIN_ID) {
-        setStatus('Переключаем на Polygon...');
-        try {
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: POLYGON_CHAIN_ID }]
-          });
-        } catch (e) {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: POLYGON_CHAIN_ID,
-              chainName: 'Polygon Mainnet',
-              nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-              rpcUrls: ['https://polygon-rpc.com'],
-              blockExplorerUrls: ['https://polygonscan.com']
-            }]
-          });
-        }
+async function encryptRecipient(recipient) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(recipient);
+
+  // Импортируем публичный ключ сервера из raw hex
+  const pubKeyBytes = new Uint8Array(SERVER_PUBLIC_KEY_HEX.match(/.{1,2}/g).map(b => parseInt(b, 16)));
+  const serverPublicKey = await crypto.subtle.importKey(
+    'raw',
+    pubKeyBytes,
+    { name: 'ECDH', namedCurve: 'P-256' },
+    false,
+    []
+  );
+
+  // Генерируем эфемерную пару
+  const ephemeral = await crypto.subtle.generateKey(
+    { name: 'ECDH', namedCurve: 'P-256' },
+    true,
+    ['deriveKey']
+  );
+
+  // Получаем общий ключ
+  const sharedKey = await crypto.subtle.deriveKey(
+    { name: 'ECDH', public: serverPublicKey },
+    ephemeral.privateKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt']
+  );
+
+  // Шифруем AES-GCM
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, sharedKey, data);
+
+  // Экспортируем эфемерный публичный ключ как raw (65 байт uncompressed)
+  const ephPubRaw = await crypto.subtle.exportKey('raw', ephemeral.publicKey);
+
+  // Собираем: [65 байт eph pub key][12 байт IV][зашифрованные данные + 16 байт тег]
+  const result = new Uint8Array(65 + 12 + encrypted.byteLength);
+  result.set(new Uint8Array(ephPubRaw), 0);
+  result.set(iv, 65);
+  result.set(new Uint8Array(encrypted), 77);
+
+  return '0x' + Array.from(result).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function connectWallet() {
+  if (!window.ethereum) { alert('Установите MetaMask!'); return; }
+  try {
+    setStatus('Подключаем...');
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if (chainId !== POLYGON_CHAIN_ID) {
+      try {
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: POLYGON_CHAIN_ID }] });
+      } catch(e) {
+        await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId: POLYGON_CHAIN_ID, chainName: 'Polygon Mainnet', nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 }, rpcUrls: ['https://polygon-rpc.com'], blockExplorerUrls: ['https://polygonscan.com'] }] });
       }
-
-      provider = new ethers.BrowserProvider(window.ethereum);
-      signer = await provider.getSigner();
-      userAddress = await signer.getAddress();
-
-      // Показываем адрес
-      document.getElementById('walletInfo').style.display = 'block';
-      document.getElementById('walletInfo').textContent =
-        '✅ Подключён: ' + userAddress.slice(0,6) + '...' + userAddress.slice(-4);
-
-      // Показываем форму
-      document.getElementById('formCard').style.display = 'block';
-      setStatus('Кошелёк подключён! Заполните форму.');
-
-    } catch (e) {
-      setStatus('Ошибка: ' + e.message);
     }
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+    const addr = await signer.getAddress();
+    document.getElementById('walletInfo').style.display = 'block';
+    document.getElementById('walletInfo').textContent = '● ' + addr.slice(0,8) + '...' + addr.slice(-6) + ' (Polygon)';
+    document.getElementById('form').style.display = 'block';
+    document.getElementById('formPlaceholder').style.display = 'none';
+    document.getElementById('connectBtn').textContent = '✓ Подключено';
+    document.getElementById('connectBtn').disabled = true;
+    updateAmounts();
+    setStatus('');
+  } catch(e) { setStatus('Ошибка: ' + e.message); }
+}
+
+async function sendPayment() {
+  const recipient = document.getElementById('recipient').value.trim();
+  const tokenSymbol = document.getElementById('token').value;
+  if (!recipient || recipient.length !== 42) { alert('Неверный адрес!'); return; }
+  if (!selectedAmount) { alert('Выберите сумму!'); return; }
+
+  const tokenAddress = tokenSymbol === 'RUS' ? RUS_ADDRESS : USDT_ADDRESS;
+  const btn = document.getElementById('sendBtn');
+
+  try {
+    btn.disabled = true;
+    btn.textContent = '⏳ Шифруем...';
+
+    const encryptedRecipient = await encryptRecipient(recipient);
+
+    const secret = ethers.hexlify(ethers.randomBytes(32));
+    const nullifier = ethers.hexlify(ethers.randomBytes(32));
+    const commitment = ethers.keccak256(ethers.concat([ethers.getBytes(secret), ethers.getBytes(nullifier)]));
+
+    const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+    const decimals = await tokenContract.decimals();
+    const amountWei = ethers.parseUnits(selectedAmount, decimals);
+
+    btn.textContent = '⏳ Шаг 1/2: Разрешение...';
+    const approveTx = await tokenContract.approve(POOL1_ADDRESS, amountWei);
+    await approveTx.wait();
+
+    btn.textContent = '⏳ Шаг 2/2: Отправка...';
+    const pool1 = new ethers.Contract(POOL1_ADDRESS, POOL1_ABI, signer);
+    const depositTx = await pool1.deposit(tokenAddress, amountWei, commitment, encryptedRecipient);
+    await depositTx.wait();
+
+    document.getElementById('successBox').style.display = 'block';
+    document.getElementById('txHash').textContent = depositTx.hash;
+    btn.textContent = '✓ Отправлено';
+    setStatus('');
+  } catch(e) {
+    setStatus('Ошибка: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '🔒 Отправить анонимно';
   }
+}
 
-  function encryptRecipient(address) {
-    // Кодируем адрес в bytes32
-    return '0x' + '000000000000000000000000' + address.slice(2).toLowerCase();
-  }
-
-  async function sendPayment() {
-    const recipient = document.getElementById('recipient').value.trim();
-    const tokenSymbol = document.getElementById('token').value;
-    const amount = document.getElementById('amount').value;
-
-    if (!recipient || !recipient.startsWith('0x') || recipient.length !== 42) {
-      alert('Введите правильный адрес получателя!');
-      return;
-    }
-    if (!amount || parseFloat(amount) <= 0) {
-      alert('Введите сумму!');
-      return;
-    }
-
-    const tokenAddress = tokenSymbol === 'RUS' ? RUS_ADDRESS : USDT_ADDRESS;
-    const btn = document.getElementById('sendBtn');
-
-    try {
-      btn.disabled = true;
-      btn.textContent = '⏳ Обрабатываем...';
-
-      const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-      const decimals = await tokenContract.decimals();
-      const amountWei = ethers.parseUnits(amount, decimals);
-
-      // Шаг 1: Approve
-      setStatus('Шаг 1/2: Подтвердите разрешение в MetaMask...');
-      const approveTx = await tokenContract.approve(POOL1_ADDRESS, amountWei);
-      await approveTx.wait();
-      setStatus('Разрешение получено! Шаг 2/2...');
-
-      // Шаг 2: Deposit
-      const pool1 = new ethers.Contract(POOL1_ADDRESS, POOL1_ABI, signer);
-      const encryptedRecipient = encryptRecipient(recipient);
-
-      setStatus('Шаг 2/2: Подтвердите транзакцию в MetaMask...');
-      const depositTx = await pool1.deposit(tokenAddress, amountWei, encryptedRecipient);
-      await depositTx.wait();
-
-      // Успех!
-      const successMsg = document.getElementById('successMsg');
-      successMsg.style.display = 'block';
-      successMsg.innerHTML = `
-        ✅ Транзакция отправлена!<br>
-        Получатель получит средства через ~30 секунд.<br>
-        <div class="tx-hash">TX: ${depositTx.hash}</div>
-      `;
-
-      setStatus('');
-      btn.textContent = '✅ Успешно!';
-      btn.style.background = '#26a17b';
-
-    } catch (e) {
-      setStatus('Ошибка: ' + e.message);
-      btn.disabled = false;
-      btn.textContent = '🔒 Отправить анонимно';
-    }
-  }
-
-  function updateFee() {
-    const amount = parseFloat(document.getElementById('amount').value) || 0;
-    const fee = (amount * 0.01).toFixed(2);
-    document.getElementById('feeAmount').textContent = fee + ' RUS';
-  }
-
-  function setStatus(msg) {
-    document.getElementById('status').textContent = msg;
-  }
+function setStatus(msg) { document.getElementById('status').textContent = msg; }
+updateAmounts();
 </script>
 </body>
 </html>
