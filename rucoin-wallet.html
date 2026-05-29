@@ -13,7 +13,7 @@
   .nav-name { font-size: 18px; font-weight: 700; color: #26a17b; letter-spacing: 1px; }
   .nav-badge { background: rgba(38,161,123,0.15); border: 1px solid rgba(38,161,123,0.3); color: #26a17b; font-size: 11px; padding: 4px 10px; border-radius: 4px; }
   .nav-right { font-size: 12px; color: #555; letter-spacing: 1px; }
-  .main { max-width: 520px; margin: 60px auto; padding: 0 20px; }
+  .main { max-width: 560px; margin: 60px auto; padding: 0 20px; }
   .page-title { text-align: center; margin-bottom: 40px; }
   .page-title h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
   .page-title h1 span { color: #26a17b; }
@@ -30,13 +30,16 @@
   .form { display: none; }
   .field { margin-bottom: 20px; }
   .field-label { font-size: 12px; font-weight: 600; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
-  input, select { width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 13px 16px; color: #fff; font-size: 14px; outline: none; transition: all 0.2s; font-family: inherit; }
-  input:focus, select:focus { border-color: #26a17b; }
-  select option { background: #1a1a1a; }
-  .amounts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .amount-btn { padding: 12px 8px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #888; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit; }
-  .amount-btn:hover { border-color: #26a17b; color: #26a17b; }
+  input { width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 13px 16px; color: #fff; font-size: 14px; outline: none; transition: all 0.2s; font-family: inherit; }
+  input:focus { border-color: #26a17b; }
+  .amounts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .amount-btn { padding: 14px 8px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #888; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit; position: relative; }
+  .amount-btn:hover:not(:disabled) { border-color: #26a17b; color: #26a17b; }
   .amount-btn.active { background: rgba(38,161,123,0.1); border-color: #26a17b; color: #26a17b; }
+  .amount-btn:disabled { background: #111; border-color: #222; color: #333; cursor: not-allowed; }
+  .amount-btn:disabled::after { content: 'Нет средств'; display: block; font-size: 9px; color: #444; margin-top: 3px; font-weight: 400; }
+  .amount-sub { font-size: 10px; color: #555; margin-top: 2px; }
+  .amount-btn.active .amount-sub { color: #26a17b; opacity: 0.7; }
   .info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; font-size: 13px; }
   .info-row:last-child { border-bottom: none; }
   .info-row-label { color: #666; }
@@ -57,6 +60,10 @@
   .info-card-desc { font-size: 11px; color: #555; line-height: 1.4; }
   footer { text-align: center; padding: 40px 20px; font-size: 12px; color: #333; letter-spacing: 1px; }
   footer span { color: #26a17b; margin: 0 4px; }
+  .loading-dot { display: inline-block; width: 6px; height: 6px; background: #26a17b; border-radius: 50%; margin: 0 2px; animation: pulse 1.5s infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.3s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -76,7 +83,6 @@
       <circle cx="100" cy="100" r="98" fill="url(#nb)"/>
       <circle cx="100" cy="100" r="88" fill="url(#ng)"/>
       <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.6"/>
-      <circle cx="100" cy="100" r="73" fill="none" stroke="white" stroke-width="1.5" opacity="0.35"/>
       <text x="100" y="116" font-family="Arial Black,sans-serif" font-size="86" font-weight="900" text-anchor="middle" fill="white">R</text>
       <rect x="32" y="86" width="136" height="9" rx="4.5" fill="white"/>
     </svg>
@@ -116,15 +122,14 @@
       </div>
       <div class="form" id="form">
         <div class="field">
-          <label class="field-label">Токен</label>
-          <select id="token" onchange="updateAmounts()">
-            <option value="RUS">RuCoin (RUS)</option>
-            <option value="USDT">USDT</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="field-label">Сумма</label>
-          <div class="amounts-grid" id="amounts"></div>
+          <label class="field-label">Сумма (RUS)</label>
+          <div class="amounts-grid" id="amounts">
+            <div style="text-align:center;padding:20px;color:#555;font-size:12px;grid-column:span 3">
+              <span class="loading-dot"></span>
+              <span class="loading-dot"></span>
+              <span class="loading-dot"></span>
+            </div>
+          </div>
         </div>
         <div class="field">
           <label class="field-label">Адрес получателя</label>
@@ -137,8 +142,8 @@
               <span class="info-row-value">ECDH + AES-256-GCM</span>
             </div>
             <div class="info-row">
-              <span class="info-row-label">Комиссия сети</span>
-              <span class="info-row-value">~$0.001</span>
+              <span class="info-row-label">Комиссия</span>
+              <span class="info-row-value">1% от суммы</span>
             </div>
             <div class="info-row">
               <span class="info-row-label">Время обработки</span>
@@ -182,36 +187,67 @@
 <footer>RuCoin Protocol <span>•</span> Polygon Network <span>•</span> 2026</footer>
 
 <script>
-const POOL1_ADDRESS = "0x4cCcf8047fC0e6cbe8c2a63E5D697eF1c6c77D6e";
+const POOL1_ADDRESS = "0xda3b99F97f64eA013814b3FC19BC9ce27AC1A549";
 const RUS_ADDRESS = "0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575";
-const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 const POLYGON_CHAIN_ID = "0x89";
 
-// Публичный ключ сервера — raw X,Y точка на кривой P-256
 const SERVER_PUBLIC_KEY_HEX = "041cb4242e64bc4b2663952c1543a64cfd8fcf40fae2e298085ce88e0a5cb5d27636958af51cbdff99dce8110a8844ed80b4b796d6f4e7c9a850774f1b98132747";
 
-const RUS_AMOUNTS = ["100","500","1000","5000","10000","100000","500000","1000000"];
-const USDT_AMOUNTS = ["10","50","100","500"];
+const POOLS = {
+  "100":     "0x191CcA1A5004035f595f0b0257D41E97D067aC37",
+  "500":     "0x0077185B6C34D11102Cc2817e54174450269C022",
+  "1000":    "0x31521C5C05EEAeC021a7C4C58ED24BA5ba1e93FE",
+  "10000":   "0x4feefA681cA14da3f670c82E0bda8137B061e5Ef",
+  "100000":  "0x3FB9C2C09944d4C0EC558981c1C2171F62E051E0",
+  "1000000": "0xA89157411198Edc7d0319423B7D3638d6574547C"
+};
+
+const AMOUNTS = [
+  { value: "100",     label: "100",   sub: "RUS" },
+  { value: "500",     label: "500",   sub: "RUS" },
+  { value: "1000",    label: "1K",    sub: "RUS" },
+  { value: "10000",   label: "10K",   sub: "RUS" },
+  { value: "100000",  label: "100K",  sub: "RUS" },
+  { value: "1000000", label: "1M",    sub: "RUS" }
+];
 
 const POOL1_ABI = [
   "function deposit(address _token, uint256 _amount, bytes32 _commitment, bytes calldata _encryptedRecipient) external"
 ];
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
-  "function decimals() external view returns (uint8)"
+  "function decimals() external view returns (uint8)",
+  "function balanceOf(address) external view returns (uint256)"
+];
+const POOL2_ABI = [
+  "function getBalance() external view returns (uint256)"
 ];
 
 let provider, signer, selectedAmount = null;
 
-function updateAmounts() {
-  const token = document.getElementById('token').value;
-  const amounts = token === 'RUS' ? RUS_AMOUNTS : USDT_AMOUNTS;
-  const unit = token === 'RUS' ? 'RUS' : 'USDT';
-  const labels = {"100":"100","500":"500","1000":"1K","5000":"5K","10000":"10K","100000":"100K","500000":"500K","1000000":"1M","10":"10","50":"50"};
-  document.getElementById('amounts').innerHTML = amounts.map(a =>
-    `<button class="amount-btn" onclick="selectAmount('${a}',this)">${labels[a]||a} ${unit}</button>`
-  ).join('');
-  selectedAmount = null;
+async function checkPoolBalances() {
+  if (!provider) return;
+  const grid = document.getElementById('amounts');
+  grid.innerHTML = '';
+  
+  for (const a of AMOUNTS) {
+    const pool2Address = POOLS[a.value];
+    let hasBalance = false;
+    try {
+      const pool2 = new ethers.Contract(pool2Address, POOL2_ABI, provider);
+      const balance = await pool2.getBalance();
+      hasBalance = balance >= ethers.parseEther(a.value);
+    } catch(e) {}
+    
+    const btn = document.createElement('button');
+    btn.className = 'amount-btn' + (hasBalance ? '' : '');
+    btn.disabled = !hasBalance;
+    btn.innerHTML = `${a.label}<div class="amount-sub">${a.sub}</div>`;
+    if (hasBalance) {
+      btn.onclick = () => selectAmount(a.value, btn);
+    }
+    grid.appendChild(btn);
+  }
 }
 
 function selectAmount(value, btn) {
@@ -223,46 +259,17 @@ function selectAmount(value, btn) {
 async function encryptRecipient(recipient) {
   const encoder = new TextEncoder();
   const data = encoder.encode(recipient);
-
-  // Импортируем публичный ключ сервера из raw hex
   const pubKeyBytes = new Uint8Array(SERVER_PUBLIC_KEY_HEX.match(/.{1,2}/g).map(b => parseInt(b, 16)));
-  const serverPublicKey = await crypto.subtle.importKey(
-    'raw',
-    pubKeyBytes,
-    { name: 'ECDH', namedCurve: 'P-256' },
-    false,
-    []
-  );
-
-  // Генерируем эфемерную пару
-  const ephemeral = await crypto.subtle.generateKey(
-    { name: 'ECDH', namedCurve: 'P-256' },
-    true,
-    ['deriveKey']
-  );
-
-  // Получаем общий ключ
-  const sharedKey = await crypto.subtle.deriveKey(
-    { name: 'ECDH', public: serverPublicKey },
-    ephemeral.privateKey,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['encrypt']
-  );
-
-  // Шифруем AES-GCM
+  const serverPublicKey = await crypto.subtle.importKey('raw', pubKeyBytes, { name: 'ECDH', namedCurve: 'P-256' }, false, []);
+  const ephemeral = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']);
+  const sharedKey = await crypto.subtle.deriveKey({ name: 'ECDH', public: serverPublicKey }, ephemeral.privateKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, sharedKey, data);
-
-  // Экспортируем эфемерный публичный ключ как raw (65 байт uncompressed)
   const ephPubRaw = await crypto.subtle.exportKey('raw', ephemeral.publicKey);
-
-  // Собираем: [65 байт eph pub key][12 байт IV][зашифрованные данные + 16 байт тег]
   const result = new Uint8Array(65 + 12 + encrypted.byteLength);
   result.set(new Uint8Array(ephPubRaw), 0);
   result.set(iv, 65);
   result.set(new Uint8Array(encrypted), 77);
-
   return '0x' + Array.from(result).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
@@ -288,31 +295,28 @@ async function connectWallet() {
     document.getElementById('formPlaceholder').style.display = 'none';
     document.getElementById('connectBtn').textContent = '✓ Подключено';
     document.getElementById('connectBtn').disabled = true;
-    updateAmounts();
+    setStatus('Проверяем балансы пулов...');
+    await checkPoolBalances();
     setStatus('');
   } catch(e) { setStatus('Ошибка: ' + e.message); }
 }
 
 async function sendPayment() {
   const recipient = document.getElementById('recipient').value.trim();
-  const tokenSymbol = document.getElementById('token').value;
   if (!recipient || recipient.length !== 42) { alert('Неверный адрес!'); return; }
   if (!selectedAmount) { alert('Выберите сумму!'); return; }
 
-  const tokenAddress = tokenSymbol === 'RUS' ? RUS_ADDRESS : USDT_ADDRESS;
   const btn = document.getElementById('sendBtn');
-
   try {
     btn.disabled = true;
     btn.textContent = '⏳ Шифруем...';
 
     const encryptedRecipient = await encryptRecipient(recipient);
-
     const secret = ethers.hexlify(ethers.randomBytes(32));
     const nullifier = ethers.hexlify(ethers.randomBytes(32));
     const commitment = ethers.keccak256(ethers.concat([ethers.getBytes(secret), ethers.getBytes(nullifier)]));
 
-    const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+    const tokenContract = new ethers.Contract(RUS_ADDRESS, ERC20_ABI, signer);
     const decimals = await tokenContract.decimals();
     const amountWei = ethers.parseUnits(selectedAmount, decimals);
 
@@ -322,7 +326,7 @@ async function sendPayment() {
 
     btn.textContent = '⏳ Шаг 2/2: Отправка...';
     const pool1 = new ethers.Contract(POOL1_ADDRESS, POOL1_ABI, signer);
-    const depositTx = await pool1.deposit(tokenAddress, amountWei, commitment, encryptedRecipient);
+    const depositTx = await pool1.deposit(RUS_ADDRESS, amountWei, commitment, encryptedRecipient);
     await depositTx.wait();
 
     document.getElementById('successBox').style.display = 'block';
@@ -337,7 +341,6 @@ async function sendPayment() {
 }
 
 function setStatus(msg) { document.getElementById('status').textContent = msg; }
-updateAmounts();
 </script>
 </body>
 </html>
