@@ -12,7 +12,9 @@
   .nav-logo { display: flex; align-items: center; gap: 12px; }
   .nav-name { font-size: 18px; font-weight: 700; color: #26a17b; letter-spacing: 1px; }
   .nav-badge { background: rgba(38,161,123,0.15); border: 1px solid rgba(38,161,123,0.3); color: #26a17b; font-size: 11px; padding: 4px 10px; border-radius: 4px; }
-  .nav-right { font-size: 12px; color: #555; letter-spacing: 1px; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .btn-trade { background: rgba(38,161,123,0.15); border: 1px solid rgba(38,161,123,0.3); color: #26a17b; font-size: 12px; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: 600; transition: all 0.2s; }
+  .btn-trade:hover { background: rgba(38,161,123,0.3); }
   .main { max-width: 560px; margin: 60px auto; padding: 0 20px; }
   .page-title { text-align: center; margin-bottom: 40px; }
   .page-title h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
@@ -32,6 +34,8 @@
   .field-label { font-size: 12px; font-weight: 600; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
   input { width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 13px 16px; color: #fff; font-size: 14px; outline: none; transition: all 0.2s; font-family: inherit; }
   input:focus { border-color: #26a17b; }
+  .warning-box { background: rgba(255,165,0,0.08); border: 1px solid rgba(255,165,0,0.3); border-radius: 8px; padding: 12px 16px; margin-top: 8px; font-size: 12px; color: #ffa500; line-height: 1.5; }
+  .warning-box strong { display: block; margin-bottom: 4px; }
   .amounts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .amount-btn { padding: 14px 8px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #888; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit; position: relative; }
   .amount-btn:hover:not(:disabled) { border-color: #26a17b; color: #26a17b; }
@@ -69,27 +73,15 @@
 <body>
 <nav class="navbar">
   <div class="nav-logo">
-    <svg width="36" height="36" viewBox="0 0 200 200">
-      <defs>
-        <linearGradient id="nb" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#1a4fc4"/>
-          <stop offset="100%" style="stop-color:#0d2d8a"/>
-        </linearGradient>
-        <linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#26a17b"/>
-          <stop offset="100%" style="stop-color:#14825c"/>
-        </linearGradient>
-      </defs>
-      <circle cx="100" cy="100" r="98" fill="url(#nb)"/>
-      <circle cx="100" cy="100" r="88" fill="url(#ng)"/>
-      <circle cx="100" cy="100" r="86" fill="none" stroke="white" stroke-width="2" opacity="0.6"/>
-      <text x="100" y="116" font-family="Arial Black,sans-serif" font-size="86" font-weight="900" text-anchor="middle" fill="white">R</text>
-      <rect x="32" y="86" width="136" height="9" rx="4.5" fill="white"/>
-    </svg>
     <span class="nav-name">RuCoin</span>
     <span class="nav-badge">PRIVATE</span>
   </div>
-  <div class="nav-right">POLYGON NETWORK</div>
+  <div class="nav-right">
+    <a class="btn-trade" href="https://dapp.quickswap.exchange/swap?type=best&from=0xc2132D05D31c914a87C6611C10748AEb04B58e8F&to=0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575" target="_blank">
+      💱 Купить / Продать
+    </a>
+    <span style="font-size:12px;color:#555;letter-spacing:1px;">POLYGON</span>
+  </div>
 </nav>
 
 <div class="main">
@@ -131,10 +123,18 @@
             </div>
           </div>
         </div>
+
         <div class="field">
           <label class="field-label">Адрес получателя</label>
           <input type="text" id="recipient" placeholder="0x..."/>
+          <div class="warning-box">
+            <strong>⚠️ Важно!</strong>
+            Убедитесь что адрес поддерживает сеть <strong>Polygon (MATIC)</strong>.
+            Не отправляйте на биржевые адреса без поддержки токена RUS —
+            средства могут быть потеряны!
+          </div>
         </div>
+
         <div class="card" style="margin-bottom:20px">
           <div class="card-body" style="padding:16px">
             <div class="info-row">
@@ -151,9 +151,11 @@
             </div>
           </div>
         </div>
+
         <button class="btn-send" id="sendBtn" onclick="sendPayment()">
           🔒 Отправить анонимно
         </button>
+
         <div class="success" id="successBox">
           <div class="success-icon">✓</div>
           <h3>Транзакция принята</h3>
@@ -165,7 +167,7 @@
     </div>
   </div>
 
-  <div class="info-cards">
+  <div class="card" style="margin-bottom:16px"><div class="card-header"><span class="card-header-title">Адрес токена RuCoin</span><span class="card-header-badge">Polygon</span></div><div class="card-body"><div style="display:flex;align-items:center;gap:8px;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:12px 16px"><span style="font-family:monospace;font-size:11px;color:#26a17b;flex:1;word-break:break-all">0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575</span><button onclick="navigator.clipboard.writeText('0x4d870Ae52e61d4FB6e125f4380cC0c0F9f15A575');this.textContent='✓';setTimeout(()=>this.textContent='Copy',2000)" style="background:#26a17b;border:none;border-radius:6px;color:white;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap">Copy</button></div></div></div><div class="info-cards">
     <div class="info-card">
       <div class="info-card-icon">🔐</div>
       <div class="info-card-title">Анонимно</div>
@@ -216,8 +218,7 @@ const POOL1_ABI = [
 ];
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
-  "function decimals() external view returns (uint8)",
-  "function balanceOf(address) external view returns (uint256)"
+  "function decimals() external view returns (uint8)"
 ];
 const POOL2_ABI = [
   "function getBalance() external view returns (uint256)"
@@ -229,7 +230,6 @@ async function checkPoolBalances() {
   if (!provider) return;
   const grid = document.getElementById('amounts');
   grid.innerHTML = '';
-  
   for (const a of AMOUNTS) {
     const pool2Address = POOLS[a.value];
     let hasBalance = false;
@@ -238,14 +238,11 @@ async function checkPoolBalances() {
       const balance = await pool2.getBalance();
       hasBalance = balance >= ethers.parseEther(a.value);
     } catch(e) {}
-    
     const btn = document.createElement('button');
-    btn.className = 'amount-btn' + (hasBalance ? '' : '');
+    btn.className = 'amount-btn';
     btn.disabled = !hasBalance;
     btn.innerHTML = `${a.label}<div class="amount-sub">${a.sub}</div>`;
-    if (hasBalance) {
-      btn.onclick = () => selectAmount(a.value, btn);
-    }
+    if (hasBalance) btn.onclick = () => selectAmount(a.value, btn);
     grid.appendChild(btn);
   }
 }
@@ -305,30 +302,24 @@ async function sendPayment() {
   const recipient = document.getElementById('recipient').value.trim();
   if (!recipient || recipient.length !== 42) { alert('Неверный адрес!'); return; }
   if (!selectedAmount) { alert('Выберите сумму!'); return; }
-
   const btn = document.getElementById('sendBtn');
   try {
     btn.disabled = true;
     btn.textContent = '⏳ Шифруем...';
-
     const encryptedRecipient = await encryptRecipient(recipient);
     const secret = ethers.hexlify(ethers.randomBytes(32));
     const nullifier = ethers.hexlify(ethers.randomBytes(32));
     const commitment = ethers.keccak256(ethers.concat([ethers.getBytes(secret), ethers.getBytes(nullifier)]));
-
     const tokenContract = new ethers.Contract(RUS_ADDRESS, ERC20_ABI, signer);
     const decimals = await tokenContract.decimals();
     const amountWei = ethers.parseUnits(selectedAmount, decimals);
-
     btn.textContent = '⏳ Шаг 1/2: Разрешение...';
     const approveTx = await tokenContract.approve(POOL1_ADDRESS, amountWei);
     await approveTx.wait();
-
     btn.textContent = '⏳ Шаг 2/2: Отправка...';
     const pool1 = new ethers.Contract(POOL1_ADDRESS, POOL1_ABI, signer);
     const depositTx = await pool1.deposit(RUS_ADDRESS, amountWei, commitment, encryptedRecipient);
     await depositTx.wait();
-
     document.getElementById('successBox').style.display = 'block';
     document.getElementById('txHash').textContent = depositTx.hash;
     btn.textContent = '✓ Отправлено';
